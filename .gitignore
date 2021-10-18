@@ -1,2 +1,10 @@
+#images
+src/memoimages/
+
+#records
+src/data
+
+records.txt
+
 #out
 out
