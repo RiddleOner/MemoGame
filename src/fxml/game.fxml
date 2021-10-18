@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="vBox" alignment="CENTER" focusTraversable="true" spacing="10.0" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controlers.Game">
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
+    </padding>
+
+    <GridPane fx:id="gridGame" alignment="TOP_CENTER">
+    </GridPane>
+
+    <Label fx:id="labelTimeFXML" disable="true" maxHeight="25.0" text="00:00">
+        <font>
+            <Font name="System Italic" size="16.0" />
+        </font>
+    </Label>
+
+
+    <HBox alignment="BOTTOM_CENTER">
+        <Button fx:id="showPictures" disable="true" onMouseClicked="#showPictures" text="Show all">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Button>
+        <Button fx:id="mainmenu" onMouseClicked="#mainMenu" text="Main menu">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Button>
+    </HBox>
+
+</VBox>
