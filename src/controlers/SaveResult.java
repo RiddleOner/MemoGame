@@ -23,6 +23,8 @@ public class SaveResult {
     @FXML
     Button save;
 
+    // ---------------------------------------------------------------------
+
     public void initialize() {
         CloseWindow.setGlobalEventHandler( save );
         onStart();
@@ -37,7 +39,6 @@ public class SaveResult {
         String allSavedRecords = "";
 
         if ( !file.isFile() ) {
-            System.out.println( "Not a file" );
             file.createNewFile();
         }
         // Read - current records

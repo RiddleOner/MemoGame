@@ -15,6 +15,8 @@ public class MainMenu {
     @FXML
     Button exit;
 
+    // ---------------------------------------------------------------------
+
     public void initialize() {
         CloseWindow.setGlobalEventHandler(exit);
     }
@@ -43,7 +45,6 @@ public class MainMenu {
     }
 
     public void exit() {
-        System.out.println("EXIT");
         Stage stage = (Stage) exit.getScene().getWindow();
         stage.close();
     }

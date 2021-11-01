@@ -21,37 +21,36 @@ import java.util.Collections;
 
 public class Game extends Thread {
 
+    String path = "/memoimages";
+
     // Time
     private static int memoTime;
+    private static String currentMemoTime;
     private static int bonusPoints;
     private static String finaltime;
 
-    final int pairAmount = PreGame.xVal * PreGame.yVal / 2;
     private final MyRectangle[] tmpChecker = new MyRectangle[2];
-    // Game
-    String path = "/memoimages";
+    private int revealed = 0;           // currently reavel tiles - less or equal (2)
+    private int successConuter = 0;     // good shots
+    final int pairAmount = PreGame.xVal * PreGame.yVal / 2;
 
+    // Game
     ArrayList<MyRectangle> tilesArrayList;  //Tiles
     @FXML
     VBox vBox;
     @FXML
     GridPane gridGame;
 
-    //    Label v1 - game.java + game.fxml
     @FXML
     Label labelTimeFXML;
 
-    //    Label v2 - game.java + game.java.initalize()
-    //    Label labelTimeFXML = new Label( "00:00" );
-
     @FXML
     Button mainmenu;
+
     // Dev test
+    Boolean boolShowPictures = false;
     @FXML
     Button showPictures;
-    Boolean boolShowPictures = false;
-    private int successConuter = 0; // good shots
-    private int revealed = 0;       // currently reavel tiles - less or equal (2)
 
     // ---------------------------------------------------------------------
 
@@ -60,6 +59,9 @@ public class Game extends Thread {
         memoTime = 0;
         bonusPoints = 0;
         finaltime = "88:88";
+
+//        labelTimeFXML.textProperty().bind(currentMemoTime.);
+//        labelTimeFXML.textProperty().bindBidirectional(currentMemoTime);
 
         CloseWindow.setGlobalEventHandler( vBox );
         buildGrid();
@@ -82,10 +84,10 @@ public class Game extends Thread {
     public void run() {
         while ( !currentThread().isInterrupted() ) {
             try {
+                System.out.print( "\r" + buildTimeFromInt( memoTime ) );
+                currentMemoTime = buildTimeFromInt( memoTime );
                 sleep( 1000 );
                 memoTime++;
-                finaltime = buildFinalTime();
-//                System.out.println( finaltime );
 
             } catch ( InterruptedException e ) {
                 System.out.println( "--> Game thread - interupted! <--" );
@@ -99,35 +101,23 @@ public class Game extends Thread {
         PreGame.game.interrupt();
     }
 
-    // Time label - TODO: 29.07.2021 Error in setting as label
-    public void setTimeLabel( Label label, String currentTime ) {
-        Platform.runLater( () -> {
-                    label.setText( currentTime );
-                }
-        );
-        PreGame.game.labelTimeFXML.setText( currentTime );
-
-    }
-
+    //build time
     private String buildTimeFromInt( int timeStamp ) {
         int minutes = timeStamp / 60;
         int seconds = timeStamp % 60;
 
-        return (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+        return ( minutes < 10 ? "0" : "" ) + minutes + ":" + ( seconds < 10 ? "0" : "" ) + seconds;
     }
 
-    public String getTimeLabel() {
-        return buildTimeFromInt( memoTime );
-    }
-
-    private String buildFinalTime() {
-        int calcBonusTime = (Math.min( PreGame.xVal, PreGame.yVal )) * bonusPoints;
-        int timeStamp = memoTime - calcBonusTime;
+    //build time including bonus points
+    private String buildTimeFromInt( int timeStamp, int bonusPoints ) {
+        int calcBonusTime = ( Math.min( PreGame.xVal, PreGame.yVal ) ) * bonusPoints;
+        int bonusTime = timeStamp - calcBonusTime;
 
         if ( timeStamp <= 0 ) {
             return "00:00";
         } else {
-            return buildTimeFromInt( timeStamp );
+            return buildTimeFromInt( bonusTime );
         }
     }
 
@@ -145,11 +135,11 @@ public class Game extends Thread {
         ArrayList<MyRectangle> tmpRectangleArray = new ArrayList<>();
 
         // x*y/2 - pairs amount
-        for ( int i = 1; i <= (x * y / 2); i++ ) {
+        for ( int i = 1; i <= ( x * y / 2 ); i++ ) {
             ImagePattern imgPattern = new ImagePattern( new Image( path + "/" + i + ".jpg" ) );
 
-            MyRectangle shape1 = new MyRectangle( (int)(PreGame.tileSize), imgPattern );
-            MyRectangle shape2 = new MyRectangle( (int)(PreGame.tileSize), imgPattern );
+            MyRectangle shape1 = new MyRectangle( (int) ( PreGame.tileSize ), imgPattern );
+            MyRectangle shape2 = new MyRectangle( (int) ( PreGame.tileSize ), imgPattern );
 
             tmpRectangleArray.add( shape1 );
             tmpRectangleArray.add( shape2 );
@@ -195,13 +185,8 @@ public class Game extends Thread {
 
     public void disableTilesStatus() {
         for ( MyRectangle myRec : tilesArrayList ) {
-            myRec.tilesDisableStatus( myRec.ifMatched );
-        }
-    }
-
-    public void disableTilesStatus( boolean disable ) {
-        for ( MyRectangle myRec : tilesArrayList ) {
-            myRec.tilesDisableStatus( disable );
+            if ( !myRec.ifMatched )
+                myRec.tilesDisableStatus( !myRec.isDisable() );
         }
     }
 
@@ -221,7 +206,7 @@ public class Game extends Thread {
     private void waitTwoSecond() {
         Thread thread = new Thread( () -> {
             try {
-                disableTilesStatus( true );
+                disableTilesStatus();
                 sleep( 2000 );
                 disableTilesStatus();
 
@@ -251,15 +236,14 @@ public class Game extends Thread {
                 tmpChecker[0].goodShot();
                 tmpChecker[1].goodShot();
                 successConuter++;
-                System.out.print("\r-Pair: " + successConuter + "/" + pairAmount );
+//                System.out.print("\r-Pair: " + successConuter + "/" + pairAmount);
                 if ( tmpChecker[0].getTryAmount() == 1 && tmpChecker[1].getTryAmount() == 1 ) {
                     bonusPoints++;
-//                    System.out.println( "Bonus point: " + bonusPoints );
+//                    System.out.println("Bonus point: " + bonusPoints);
                 }
             } else {
                 waitTwoSecond();
 //                System.out.println( " -Different pictures - " + tmpChecker[0].getMemoImage().toString().substring( 18 ) + " vs " + tmpChecker[1].getMemoImage().toString().substring( 18 ) );
-                waitTwoSecond();
                 tmpChecker[0].badShot();
                 tmpChecker[1].badShot();
             }
@@ -268,9 +252,10 @@ public class Game extends Thread {
         }
 
         if ( successConuter == pairAmount ) {
-            System.out.println( "-----------------" );
+            finaltime = buildTimeFromInt( memoTime, bonusPoints );
             openSaveResult();
-            System.out.println( "Final time: " + getFinalTime() + ", with " + bonusPoints + " bonus points!" );
+            System.out.println( "\n-" );
+            System.out.println( "Final time: " + finaltime + ", with " + bonusPoints + " bonus points!" );
         }
 
     }
@@ -295,8 +280,8 @@ public class Game extends Thread {
         noweOkno.setScene( nowa );
         noweOkno.setTitle( "Congratulation" );
 
-        noweOkno.setX( aktualneokno.getX() + (aktualna.getWidth() - nowa.getWidth()) / 2 );
-        noweOkno.setY( aktualneokno.getY() + (aktualna.getHeight() - nowa.getHeight()) / 2 );
+        noweOkno.setX( aktualneokno.getX() + ( aktualna.getWidth() - nowa.getWidth() ) / 2 );
+        noweOkno.setY( aktualneokno.getY() + ( aktualna.getHeight() - nowa.getHeight() ) / 2 );
         noweOkno.show();
     }
 
@@ -309,8 +294,8 @@ public class Game extends Thread {
 
         Scene mainmenu = new Scene( structure, 300, 275 );
 
-        double xpos = (Screen.getPrimary().getBounds().getWidth() - 300) / 2;
-        double ypos = (Screen.getPrimary().getBounds().getHeight() - 375) / 2;
+        double xpos = ( Screen.getPrimary().getBounds().getWidth() - 300 ) / 2;
+        double ypos = ( Screen.getPrimary().getBounds().getHeight() - 375 ) / 2;
         okno.setX( xpos );
         okno.setY( ypos );
 
@@ -321,7 +306,7 @@ public class Game extends Thread {
     public void showPictures() {
         for ( int i = 0; i < PreGame.xVal; i++ ) {
             for ( int j = 0; j < PreGame.yVal; j++ ) {
-                ((MyRectangle) gridGame.getChildren().get( i * PreGame.yVal + j )).devDisplay( boolShowPictures );
+                ( (MyRectangle) gridGame.getChildren().get( i * PreGame.yVal + j ) ).devDisplay( boolShowPictures );
             }
         }
         successConuter = 0;
