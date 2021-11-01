@@ -8,10 +8,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Spinner;
 import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 
 public class PreGame {
@@ -24,16 +24,17 @@ public class PreGame {
     static double tilesMargin;
     // Game thread + alert
     static Game game;
+
+    // ---------------------------------------------------------------------
+
+    final private String path = "C:/Users/Edwin/Desktop/GUI/ProjectMemoV2/src/memoimages";
     final Alert a = new Alert( Alert.AlertType.NONE );
-    // window dimmensions
-    int gameWindowWidth;
-    int gameWindowHeight;
-    // screen dimension
-//    final int screenWidth = (int) Screen.getPrimary().getBounds().getWidth();
-//    final int screenHeight = (int) Screen.getPrimary().getBounds().getHeight();
     // screen dimension excluding windows bar
     final int screenWidth = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getWidth();
     final int screenHeight = (int) GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().getHeight();
+    // window dimmensions
+    int gameWindowWidth;
+    int gameWindowHeight;
 
     @FXML
     Button exit;
@@ -67,8 +68,8 @@ public class PreGame {
         // Scene ( element; columns -> width; rows -> height )
         Scene startGameScene = new Scene( structure, gameWindowWidth, gameWindowHeight );
 
-        okno.setX( (screenWidth - gameWindowWidth) >> 1 );
-        okno.setY( (screenHeight - gameWindowHeight - 20) >> 1);
+        okno.setX( ( screenWidth - gameWindowWidth ) >> 1 );
+        okno.setY( ( screenHeight - gameWindowHeight - 20 ) >> 1 );
 
         // Run new Window
         okno.setScene( startGameScene );
@@ -80,7 +81,8 @@ public class PreGame {
 
     public void startGameThread() {
         game.start();
-        System.out.println( "--> GAME - #" + game.getId() + "\n");
+        System.out.println( "\n-----------------" );
+        System.out.println( "--> GAME - #" + game.getId() );
     }
 
     public void setGameWindowDimensions() {
@@ -89,45 +91,54 @@ public class PreGame {
         tilesMargin = tileSize / 20;
 
         // window dimension calculated with basics sizes
-        int tmpWidth = (int) (20 + ((tileSize)) * xVal + (tilesMargin * (xVal - 1)));
-        int tmpHeight = (int) (135 + ((tileSize)) * yVal + (tilesMargin * (yVal - 1)));
+        int tmpWidth = (int) ( 20 + ( ( tileSize ) ) * xVal + ( tilesMargin * ( xVal - 1 ) ) );
+        int tmpHeight = (int) ( 135 + ( ( tileSize ) ) * yVal + ( tilesMargin * ( yVal - 1 ) ) );
 
         if ( tmpWidth > screenWidth || tmpHeight > screenHeight ) {
             double xDiff = screenWidth - tmpWidth, yDiff = screenHeight - tmpHeight;
             if ( xDiff < yDiff && xDiff < 0 ) {
-                tileSize = (int) ((screenWidth - 20) / (xVal + ((double) (xVal - 1) / 20)));
+                tileSize = (int) ( ( screenWidth - 20 ) / ( xVal + ( (double) ( xVal - 1 ) / 20 ) ) );
             } else if ( yDiff < xDiff && yDiff < 0 ) {
-                tileSize = (int) ((screenHeight - 145) / (yVal + ((double) (yVal - 1) / 20)));
+                tileSize = (int) ( ( screenHeight - 145 ) / ( yVal + ( (double) ( yVal - 1 ) / 20 ) ) );
             }
         }
 
         tilesMargin = tileSize / 20;
 
-        gameWindowWidth = (int) (20 + (tileSize * xVal) + (tilesMargin * (xVal - 1)));
-        gameWindowHeight = (int) (135 + (tileSize * yVal) + (tilesMargin * (yVal - 1)));
+        gameWindowWidth = (int) ( 20 + ( tileSize * xVal ) + ( tilesMargin * ( xVal - 1 ) ) );
+        gameWindowHeight = (int) ( 135 + ( tileSize * yVal ) + ( tilesMargin * ( yVal - 1 ) ) );
 
     }
 
-    // Tiles amount exception
+    // Grid sizes exception
     public void checkTilesAmount() throws IOException {
 
+        //Images folder
+        File imagesDirectory = new File( path );
+        //Images list
+        File[] fileList = imagesDirectory.listFiles();
+
+        // amount of tiles
         int gridXY = xValue.getValue() * yValue.getValue();
 
-        // odd amounts of tiles
+        // ODD amounts of tiles
         if ( gridXY % 2 != 0 ) {
             int result = xValue.getValue() * yValue.getValue();
-            tilesAmountAlert( "Tiles amount value should be divisible by 2", xValue.getValue() + " * " + yValue.getValue() + " = " + (result - 1) + " + " + 1 );
+            tilesAmountAlert( "Tiles amount value should be divisible by 2!", xValue.getValue() + " * " + yValue.getValue() + " = " + ( result - 1 ) + " + " + 1 + '.' );
         }
-        // TODO: 18.10.2021 - directory image counter
         // not enought images
-        else if ( ( gridXY / 2 ) > 51 ) {
-            System.out.println( gridXY +" / " + gridXY/2 + " --- " + 51);
-            tilesAmountAlert( "Not enought images for selected size", "Required " + gridXY / 2 + " for selected grid" );
+        else if ( ( gridXY / 2 ) > fileList.length ) {
+            tilesAmountAlert( "Not enought images for selected size!", "Required at least " + gridXY / 2 + " for selected grid." );
+        }
+        // not enought tiles
+        else if ( gridXY < 4 ) {
+            tilesAmountAlert( "Wrong grid dimension!", "The product of two numbers should be at least 4." );
         }
         // no possible error
         else {
-            startGame( xValue.getValue(), yValue.getValue() );  //(columns,rows) - amount
+            startGame( xValue.getValue(), yValue.getValue() );  //(columns,rows)
         }
+
     }
 
     private void tilesAmountAlert( String header, String textContent ) {

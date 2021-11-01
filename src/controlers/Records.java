@@ -21,11 +21,13 @@ public class Records {
     @FXML
     Text records;
 
+    // ---------------------------------------------------------------------
+
     public void initialize() throws IOException {
         updateRecords();
 
         onStartAnimation();
-        CloseWindow.setGlobalEventHandler( exit );
+        CloseWindow.setGlobalEventHandler(exit);
     }
 
     public void exit() {
@@ -34,47 +36,41 @@ public class Records {
     }
 
     public void onStartAnimation() {
-        FadeTransition fd = new FadeTransition( Duration.seconds( 0.33 ), vBox );
-        fd.setFromValue( 1 );
-        fd.setToValue( 0.50 );
-        fd.setCycleCount( 4 );
-        fd.setAutoReverse( true );
+        FadeTransition fd = new FadeTransition(Duration.seconds(0.33), vBox);
+        fd.setFromValue(1);
+        fd.setToValue(0.50);
+        fd.setCycleCount(4);
+        fd.setAutoReverse(true);
         fd.play();
     }
 
     public void updateRecords() throws IOException {
         String tmpPath = "./src/data/records.txt";
-        File file = new File( tmpPath );
+        File file = new File(tmpPath);
 
-        if ( file.isFile() ) {
+        if (file.isFile()) {
 
-            Scanner sc = new Scanner( file );
+            Scanner sc = new Scanner(file);
             StringBuilder sb = new StringBuilder();
 
-            while ( sc.hasNextLine() ) {
-                sb.append( sc.nextLine() ).append( "\n" );
+            while (sc.hasNextLine()) {
+                sb.append(sc.nextLine()).append("\n");
             }
             String tmpText = sb.toString();
             sc.close();
 
-            setRecordsText( tmpText );
+            setRecordsText(tmpText);
+        } else {
+            setRecordsText("");
         }
+
+    }
+
+    public void setRecordsText(String str) {
+        if (!str.isEmpty())
+            records.setText(str);
         else {
-            setRecordsText();
-        }
-
-    }
-
-    public void setRecordsText( String str ) {
-        if ( !str.isEmpty() )
-            records.setText( str );
-        else{
-            records.setText( "No records" );
+            records.setText("No records");
         }
     }
-
-    public void setRecordsText() {
-        records.setText( "No records" );
-    }
-
 }

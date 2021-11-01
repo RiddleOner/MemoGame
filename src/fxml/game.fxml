@@ -13,7 +13,7 @@
     <GridPane fx:id="gridGame" alignment="TOP_CENTER">
     </GridPane>
 
-    <Label fx:id="labelTimeFXML" disable="true" maxHeight="25.0" text="00:00">
+    <Label fx:id="labelTimeFXML" disable="false" maxHeight="25.0" text="00:00">
         <font>
             <Font name="System Italic" size="16.0" />
         </font>
